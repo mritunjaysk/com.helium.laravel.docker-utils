@@ -1,0 +1,17 @@
+# Install mhsendmail
+ENV GOLANG_VERSION 1.4.2
+
+RUN curl -sSL https://storage.googleapis.com/golang/go$GOLANG_VERSION.linux-amd64.tar.gz \
+		| tar -v -C /usr/local -xz
+
+ENV PATH /usr/local/go/bin:$PATH
+
+RUN mkdir -p /go/src /go/bin && chmod -R 777 /go
+ENV GOROOT /usr/local/go
+ENV GOPATH /go
+
+RUN go get github.com/mailhog/mhsendmail
+RUN cp /go/bin/mhsendmail /usr/local/bin/mhsendmail
+
+# Ovveride Sendmail to use mhsendmail
+RUN echo "sendmail_path=/usr/local/bin/mhsendmail" >> /usr/local/etc/php/conf.d/php-sendmail.ini

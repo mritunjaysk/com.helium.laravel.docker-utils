@@ -1,0 +1,30 @@
+  mysql:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: {{CONTAINER_NAME}}_mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+        MYSQL_ROOT_PASSWORD: {{DB_PASSWORD}}
+        MYSQL_DATABASE: {{DB_NAME}}
+        MYSQL_USER : {{DB_USER}}
+        MYSQL_PASSWORD: {{DB_PASSWORD}}
+
+  mysql_test:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: {{CONTAINER_NAME}}_mysql_test
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+        MYSQL_ROOT_PASSWORD: {{DB_PASSWORD}}
+        MYSQL_DATABASE: {{DB_NAME}}_test
+        MYSQL_USER : {{DB_USER}}
+        MYSQL_PASSWORD: {{DB_PASSWORD}}

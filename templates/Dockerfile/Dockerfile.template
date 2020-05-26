@@ -1,0 +1,26 @@
+FROM php:7.3-fpm
+WORKDIR /code
+
+{{DEPENDENCIES}}
+
+{{DATABASE}}
+
+{{EXTENSIONS}}
+
+# Copy docker-config to container
+COPY ./docker-config/php.ini /usr/local/etc/php/conf.d/docker-php.ini
+COPY ./docker-config/php.ini /usr/local/etc/php/php.ini
+COPY ./docker-config/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+{{MAILHOG}}
+
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install Node.js
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+  apt-get install -y nodejs npm
+
+# Run Entrypoint Script
+RUN ["chmod", "+x", "/usr/local/bin/entrypoint.sh"]
+RUN ["/usr/local/bin/entrypoint.sh"]

@@ -1,0 +1,29 @@
+{
+    "name": "helium/docker-generator",
+    "description": "A simple pipe for generating docker containers for new development projects",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nick Rupert",
+            "email": "nick@heliumservices.com"
+        }
+    ],
+    "require": {
+        "illuminate/console": "^7.12",
+        "orchestra/testbench": "^5.2"
+    },
+	"autoload": {
+		"psr-4": {
+			"Helium\\DockerGenerator\\": "src/",
+			"Helium\\DockerGenerator\\Tests\\": "tests/"
+		}
+	},
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Helium\\DockerGenerator\\DockerGeneratorServiceProvider"
+			]
+		}
+	}
+}
