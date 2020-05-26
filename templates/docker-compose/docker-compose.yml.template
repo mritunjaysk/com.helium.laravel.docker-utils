@@ -17,31 +17,31 @@ services:
     container_name: {{CONTAINER_NAME}}_php
 
   web:
-	image: nginx:latest
-	build:
-	  context : ./docker-config/
-	  dockerfile : Dockerfile_Nginx
-	  network: host
-	ports:
-	  - "80:80"
-	volumes:
-	  - ./:/code:delegated
-	  - ./docker-config/site.conf:/etc/nginx/conf.d/site.conf:cached
-	  - ./docker-config/nginx_custom_settings.conf:/etc/nginx/conf.d/nginx_custom_settings.conf:cached
-	links:
-	  - php
-	depends_on:
-	  - php
-	  - {{DB_SERVICE}}
-	container_name: {{CONTAINER_NAME}}_nginx
+    image: nginx:latest
+    build:
+      context : ./docker-config/
+      dockerfile : Dockerfile_Nginx
+      network: host
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/code:delegated
+      - ./docker-config/site.conf:/etc/nginx/conf.d/site.conf:cached
+      - ./docker-config/nginx_custom_settings.conf:/etc/nginx/conf.d/nginx_custom_settings.conf:cached
+    links:
+      - php
+    depends_on:
+      - php
+      - {{DB_SERVICE}}
+    container_name: {{CONTAINER_NAME}}_nginx
 
-  {{DATABASE}}
+{{DATABASE}}
 
   adminer:
-	image: adminer
-	container_name: {{CONTAINER_NAME}}_adminer
-	restart: always
-	ports:
-	  - 8080:8080
+    image: adminer
+    container_name: {{CONTAINER_NAME}}_adminer
+    restart: always
+    ports:
+      - 8080:8080
 
-  {{MAILHOG}}
+{{MAILHOG}}
