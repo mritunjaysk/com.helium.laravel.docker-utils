@@ -16,18 +16,23 @@ class TemplateFacade
 
 		if ($outputPath)
 		{
-			$file = fopen($outputPath, 'w');
-
-			if (!$file)
-			{
-				die("Unable to create file $outputPath");
-			}
-
-			fwrite($file, $template);
-
-			fclose($file);
+			self::writeFile($outputPath, $template);
 		}
 
 		return $template;
+	}
+
+	public static function writeFile(string $outputPath, string $value)
+	{
+		$file = fopen($outputPath, 'w');
+
+		if (!$file)
+		{
+			die("Unable to create file $outputPath");
+		}
+
+		fwrite($file, $value);
+
+		fclose($file);
 	}
 }
