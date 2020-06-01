@@ -1,22 +1,24 @@
 <?php
 
-namespace Helium\DockerGenerator;
+namespace Helium\DockerUtils\Commands;
 
-use Illuminate\Console\Command;
+use Helium\DockerUtils\Commands\Base\DockerCommand;
+use Helium\DockerUtils\Facades\TemplateFacade;
 use Illuminate\Support\Str;
 
-class DockerGenerateCommand extends Command
+class DockerGenerateCommand extends DockerCommand
 {
 	protected const MYSQL = 'MySQL';
 	protected const POSTGRESQL = 'PostgreSQL';
+
 	protected const DB_CHOICES = [
 		self::MYSQL,
 		self::POSTGRESQL
 	];
 
-	protected $signature = 'docker-generate';
+	protected $signature = 'docker:generate';
 
-	protected $description = 'Generates docker container for project.';
+	protected $description = 'Generates docker containers for project.';
 
 	protected function getTemplate(string $path, array $args = []): string
 	{
@@ -28,7 +30,11 @@ class DockerGenerateCommand extends Command
 
 	public function handle()
 	{
-		$this->line('Generating Docker Container');
+		$this->info('Generating Docker Container');
+
+		$this->installDockerDevBase();
+		$this->startupDocker();
+		$this->startupSharedContainers();
 
 		$dockerfile = [];
 		$dockerCompose = [];

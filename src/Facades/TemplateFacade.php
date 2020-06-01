@@ -1,6 +1,6 @@
 <?php
 
-namespace Helium\DockerGenerator;
+namespace Helium\DockerUtils\Facades;
 
 class TemplateFacade
 {

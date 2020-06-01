@@ -1,8 +1,8 @@
 <?php
 
-namespace Helium\DockerGenerator\Tests;
+namespace Helium\DockerUtils\Tests;
 
-use Helium\DockerGenerator\TemplateFacade;
+use Helium\DockerUtils\Facades\TemplateFacade;
 use Orchestra\Testbench\TestCase;
 
 class TemplateFacadeTest extends TestCase

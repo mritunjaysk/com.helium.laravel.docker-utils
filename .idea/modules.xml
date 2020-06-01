@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/com.helium.laravel.docker-generator.iml" filepath="$PROJECT_DIR$/.idea/com.helium.laravel.docker-generator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/com.helium.laravel.docker-utils.iml" filepath="$PROJECT_DIR$/.idea/com.helium.laravel.docker-utils.iml" />
     </modules>
   </component>
 </project>
