@@ -216,9 +216,12 @@ class DockerCommand extends Command
 	/**
 	 * Shut down project containers.
 	 */
-	protected function stopProjectContainers()
+	protected function stopProjectContainers(?bool $shutdownGlobal = null)
 	{
-		$shutdownGlobal = $this->confirm('Shut down global containers too?', false);
+		if (is_null($shutdownGlobal))
+		{
+			$shutdownGlobal = $this->confirm('Shut down global containers too?', false);
+		}
 
 		$this->info('Shutting down project containers...');
 
