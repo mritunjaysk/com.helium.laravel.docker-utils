@@ -6,14 +6,14 @@ services:
       context : ./
       dockerfile : Dockerfile
       network: host
+    restart: on-failure
     volumes:
       - ./:/code:delegated
       - ./docker-config/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:cached
-    depends_on: ["{{DB_SERVICE}}"]
     ports:
-      - "9000:9000"
+      - {{PHP_PORT}}:9000
     expose:
-      - "9000"
+      - {{PHP_PORT}}
     container_name: {{CONTAINER_NAME}}_php
 
   web:
@@ -22,8 +22,9 @@ services:
       context : ./docker-config/
       dockerfile : Dockerfile_Nginx
       network: host
+    restart: on-failure
     ports:
-      - "80:80"
+      - {{WEB_PORT}}:80
     volumes:
       - ./:/code:delegated
       - ./docker-config/site.conf:/etc/nginx/conf.d/site.conf:cached
@@ -32,16 +33,4 @@ services:
       - php
     depends_on:
       - php
-      - {{DB_SERVICE}}
     container_name: {{CONTAINER_NAME}}_nginx
-
-{{DATABASE}}
-
-  adminer:
-    image: adminer
-    container_name: {{CONTAINER_NAME}}_adminer
-    restart: always
-    ports:
-      - 8080:8080
-
-{{MAILHOG}}

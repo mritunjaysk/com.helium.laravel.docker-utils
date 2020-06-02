@@ -24,6 +24,7 @@ class TemplateFacade
 
 	public static function writeFile(string $outputPath, string $value)
 	{
+		$outputPath = str_replace('~/', getenv('HOME') . '/', $outputPath);
 		$file = fopen($outputPath, 'w');
 
 		if (!$file)

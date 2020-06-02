@@ -21,29 +21,23 @@ class DockerCommand extends Command
 	{
 		$this->info('Checking for shared containers...');
 
-		$package = shell_exec('composer global show 2> /dev/null | grep helium/docker-dev-base');
-
-		if (empty($package))
+		if (!file_exists(getenv('HOME') . '/.docker/com.helium.docker.dev-base'))
 		{
-			$this->info('Installing helium/docker-dev-base...');
+			shell_exec('mkdir ~/.docker 2> /dev/null');
 
-			$command = 'composer global require helium/docker-dev-base 2> /dev/null';
+			$this->info('Cloning helium/docker-dev-base...');
 
-			exec($command, $output, $return);
+			shell_exec('cd ~/.docker && git clone git@bitbucket.org:teamhelium/com.helium.docker.dev-base.git 2> /dev/null');
 
-			if ($return != 0)
-			{
-				$this->error('Failed to install helium/docker-dev-base');
-				$this->info('Please install helium/docker-dev-base globally, then try again');
-
-				exit($return);
-			}
-
-			$this->info('Successfully installed helium/docker-dev-base');
+			$this->info('Successfully cloned helium/docker-dev-base');
 		}
 		else
 		{
-			$this->info('Shared containers already installed');
+			$this->info('Updating shared containers...');
+
+			shell_exec('cd ~/.docker/com.helium.docker.dev-base && git pull 2> /dev/null');
+
+			$this->info('Successfully updated shared containers');
 		}
 	}
 
@@ -119,7 +113,7 @@ class DockerCommand extends Command
 		{
 			$this->info('Starting shared containers...');
 
-			$command = 'cd ~/.composer/vendor/helium/docker-dev-base && docker-compose up -d 2> /dev/null';
+			$command = 'cd ~/.docker/com.helium.docker.dev-base && docker-compose up -d 2> /dev/null';
 
 			exec($command, $output, $return);
 
@@ -140,40 +134,46 @@ class DockerCommand extends Command
 	}
 
 	/**
-	 *
+	 * Build project containers
+	 */
+	protected function buildProjectContainers()
+	{
+		$this->info('Building project containers (this may take a while)...');
+
+		$command = 'docker-compose build 2> /dev/null';
+
+		exec($command, $output, $return);
+
+		if ($return != 0)
+		{
+			$this->error('Failed to build project containers');
+			$this->info('Please build and start your project containers manually');
+
+			exit($return);
+		}
+
+		$this->info('Successfully finished building project containers');
+	}
+
+	/**
+	 * Check if project containers are running.
+	 * If not, attempt to start them.
 	 */
 	protected function startupProjectContainers()
 	{
-		$this->info('Checking status of project containers...');
+		$this->info('Starting project containers...');
 
-		$output = shell_exec('docker-compose ps --services');
+		$command = 'docker-compose up -d 2> /dev/null';
 
-		$numServices = count(explode("\n", $output)) - 1;
+		exec($command, $output, $return);
 
-		$output = shell_exec('docker-compose ps');
-
-		$numRunningServices = count(explode("\n", $output)) - 3;
-
-		if ($numRunningServices < $numServices)
+		if ($return != 0)
 		{
-			$this->info('Starting project containers...');
+			$this->error('Failed to start project containers');
 
-			$command = 'docker-compose up -d 2> /dev/null';
-
-			exec($command, $output, $return);
-
-			if ($return != 0)
-			{
-				$this->error('Failed to start project containers');
-
-				exit($return);
-			}
-
-			$this->info('Successfully started project containers');
+			exit($return);
 		}
-		else
-		{
-			$this->info('Project containers already started');
-		}
+
+		$this->info('Successfully started project containers');
 	}
 }
