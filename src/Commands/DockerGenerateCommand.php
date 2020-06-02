@@ -299,9 +299,9 @@ class DockerGenerateCommand extends DockerCommand
 
 		$this->updateHosts($input);
 
-		$this->installDockerDevBase();
+		$this->installGlobalContainers();
 		$this->startupDocker();
-		$this->startupSharedContainers();
+		$this->startupGlobalContainers();
 
 		$this->updateNginx($input);
 

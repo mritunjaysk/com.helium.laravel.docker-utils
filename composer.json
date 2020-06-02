@@ -3,7 +3,6 @@
     "description": "A set of helpful docker utilities for laravel projects",
     "type": "library",
     "license": "MIT",
-	"version": "2.0.0",
     "authors": [
         {
             "name": "Nick Rupert",

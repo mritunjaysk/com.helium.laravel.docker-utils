@@ -13,7 +13,7 @@ class DockerStartCommand extends DockerCommand
 	public function handle()
 	{
 		$this->startupDocker();
-		$this->startupSharedContainers();
+		$this->startupGlobalContainers();
 		$this->startupProjectContainers();
 
 		$this->info('Done');
