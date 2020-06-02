@@ -16,7 +16,7 @@ services:
     expose:
       - {{PHP_PORT}}
     extra_hosts:
-      - "postgres:172.17.0.1"
+      - "pgsql:172.17.0.1"
       - "mysql:172.17.0.1"
 
   web:
