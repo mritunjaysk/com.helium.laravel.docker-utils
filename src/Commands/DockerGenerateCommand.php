@@ -295,6 +295,7 @@ class DockerGenerateCommand extends DockerCommand
 				break;
 			case self::POSTGRESQL:
 				$command = "docker exec -it pgsql bash -c \"echo \\\"SELECT 'CREATE DATABASE {$input['DB_DATABASE']}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{$input['DB_DATABASE']}')\gexec\\\" | psql -U pgsql\"";
+				$command = "docker exec -it pgsql bash -c \"echo \\\"SELECT 'CREATE DATABASE {$input['DB_DATABASE']}_test' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{$input['DB_DATABASE']}_test')\gexec\\\" | psql -U pgsql\"";
 
 				exec($command, $output, $return);
 				break;
@@ -326,7 +327,7 @@ class DockerGenerateCommand extends DockerCommand
 				return;
 				break;
 			case self::POSTGRESQL:
-				$command = "docker exec -it pgsql bash -c \"echo \\\"REASSIGN OWNED BY {$input['DB_USER']} TO pgsql; DROP OWNED BY {$input['DB_USER']}; DROP ROLE IF EXISTS {$input['DB_USER']}; CREATE ROLE {$input['DB_USER']} LOGIN PASSWORD '{$input['DB_PASSWORD']}'; GRANT ALL PRIVILEGES ON DATABASE {$input['DB_DATABASE']} TO {$input['DB_USER']};\\\" | psql -U pgsql\"";
+				$command = "docker exec -it pgsql bash -c \"echo \\\"REASSIGN OWNED BY {$input['DB_USER']} TO pgsql; DROP OWNED BY {$input['DB_USER']}; DROP ROLE IF EXISTS {$input['DB_USER']}; CREATE ROLE {$input['DB_USER']} LOGIN PASSWORD '{$input['DB_PASSWORD']}'; GRANT ALL PRIVILEGES ON DATABASE {$input['DB_DATABASE']} TO {$input['DB_USER']}; GRANT ALL PRIVILEGES ON DATABASE {$input['DB_DATABASE']}_test TO {$input['DB_USER']};\\\" | psql -U pgsql\"";
 
 				exec($command, $output, $return);
 				break;

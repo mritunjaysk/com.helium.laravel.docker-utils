@@ -134,6 +134,8 @@ class DockerCommand extends Command
 				exit($return);
 			}
 
+			sleep(10);
+
 			$this->info('Successfully started global containers');
 		}
 		else
