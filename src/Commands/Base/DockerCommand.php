@@ -94,7 +94,7 @@ class DockerCommand extends Command
 	{
 		$this->info('Updating global containers...');
 
-		shell_exec('cd ~/.docker/com.helium.docker.dev-base && git reset --hard origin/master 2> /dev/null');
+		shell_exec('cd ~/.docker/com.helium.docker.dev-base && git fetch origin --quiet && git reset --hard origin/master 2> /dev/null');
 
 		$this->info('Successfully updated global containers');
 	}
