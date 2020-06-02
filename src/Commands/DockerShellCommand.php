@@ -12,7 +12,7 @@ class DockerShellCommand extends DockerCommand
 
 	public function handle()
 	{
-		$containerName = $this->getContainerName();
+		$containerName = $this->getPhpContainerName();
 
 		passthru("docker exec -it $containerName bash");
 	}

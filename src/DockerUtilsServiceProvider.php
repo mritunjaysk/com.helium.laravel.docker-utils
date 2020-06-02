@@ -4,6 +4,7 @@ namespace Helium\DockerUtils;
 
 use Helium\DockerUtils\Commands\DockerBuildCommand;
 use Helium\DockerUtils\Commands\DockerStopCommand;
+use Helium\DockerUtils\Commands\DockerSyncCommand;
 use Helium\DockerUtils\Commands\DockerUpdateCommand;
 use Illuminate\Support\ServiceProvider;
 use Helium\DockerUtils\Commands\DockerGenerateCommand;
@@ -21,7 +22,8 @@ class DockerUtilsServiceProvider extends ServiceProvider
 				DockerStartCommand::class,
 				DockerStopCommand::class,
 				DockerUpdateCommand::class,
-				DockerBuildCommand::class
+				DockerBuildCommand::class,
+				DockerSyncCommand::class
 			]);
 		}
 	}

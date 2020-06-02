@@ -8,14 +8,6 @@ use Illuminate\Support\Str;
 
 class DockerGenerateCommand extends DockerCommand
 {
-	protected const MYSQL = 'mysql';
-	protected const POSTGRESQL = 'pgsql';
-
-	protected const DB_CHOICES = [
-		self::MYSQL,
-		self::POSTGRESQL
-	];
-
 	protected $signature = 'docker:generate';
 
 	protected $description = 'Generates docker containers for project.';
@@ -48,6 +40,22 @@ class DockerGenerateCommand extends DockerCommand
 		$input['SUDO_PASSWORD'] = $this->secret('sudo password (required to update /etc/hosts file)', '');
 
 		return $input;
+	}
+
+	protected function saveConfig(array $input)
+	{
+		$config = [
+			'CONTAINER_NAME' => $input['CONTAINER_NAME'],
+			'HOSTNAME' => $input['HOSTNAME'],
+			'DB' => $input['DB'],
+			'DB_DATABASE' => $input['DB_DATABASE'],
+			'DB_USER' => $input['DB_USER'],
+			'DB_PASSWORD' => $input['DB_PASSWORD']
+		];
+
+		$json = json_encode($config, JSON_PRETTY_PRINT);
+
+		TemplateFacade::writeFile('./docker_utils_config.json', $json);
 	}
 
 	protected function generateDockerfile(array $input)
@@ -137,92 +145,6 @@ class DockerGenerateCommand extends DockerCommand
 		);
 	}
 
-	protected function updateEnv(array $input)
-	{
-		$envVars = [
-			'APP_NAME' => $input['CONTAINER_NAME'],
-			'APP_URL' => 'http://' . $input['HOSTNAME'],
-			'DB_CONNECTION' => $input['DB'],
-			'DB_HOST' => $input['DB'],
-			'DB_PORT' => $input['DB'] == self::MYSQL ? 3306 : 5432,
-			'DB_DATABASE' => $input['DB_DATABASE'],
-			'DB_USERNAME' => $input['DB_USER'],
-			'DB_PASSWORD' => $input['DB_PASSWORD']
-		];
-
-		if ($input['MAILHOG'])
-		{
-			$envVars = array_merge($envVars, [
-				'MAIL_MAILER' => 'smtp',
-				'MAIL_HOST' => 'mailhog',
-				'MAIL_PORT' => 1025,
-				'MAIL_USERNAME' => 'null',
-				'MAIL_PASSWORD' => 'null',
-				'MAIL_ENCRYPTION' => 'null',
-				'MAIL_FROM_ADDRESS' => $input['CONTAINER_NAME'] . '@heliumservices.com',
-				'MAIL_FROM_NAME' =>'${APP_NAME}'
-			]);
-		}
-
-		$env = file_get_contents('.env');
-		$envExample = file_get_contents('.env.example');
-
-		foreach ($envVars as $key => $value)
-		{
-			if (Str::of($env)->contains($key))
-			{
-				$env = preg_replace("/$key=.*/", "$key=$value", $env);
-			}
-			else
-			{
-				$env .= "$key=$value\n";
-			}
-
-			if (Str::of($envExample)->contains($key))
-			{
-				$envExample = preg_replace("/$key=.*/", "$key=$value", $envExample);
-			}
-			else
-			{
-				$envExample .= "$key=$value\n";
-			}
-		}
-
-		TemplateFacade::writeFile('.env', $env);
-		TemplateFacade::writeFile('.env.example', $envExample);
-	}
-
-	protected function updateHosts(array $input)
-	{
-		$line = '127.0.0.1 ' . $input['HOSTNAME'];
-
-		if (empty($input['SUDO_PASSWORD']))
-		{
-			$this->warn('No sudo password given, could not update /etc/hosts');
-			$this->info('Please add the following line to your /etc/hosts file:');
-			$this->info($line);
-		}
-		else
-		{
-			$this->info('Updating /etc/hosts...');
-
-			$command = "echo '{$input['SUDO_PASSWORD']}' | sudo -S -- sh -c \"echo \\\"{$line}\\\" >> /etc/hosts\" 2> /dev/null";
-
-			exec($command, $output, $return);
-
-			if ($return != 0)
-			{
-				$this->error('Could not update /etc/hosts');
-				$this->info('Please add the following line to your /etc/hosts file:');
-				$this->info($line);
-			}
-			else
-			{
-				$this->info('Successfully updated /etc/hosts');
-			}
-		}
-	}
-
 	protected function updateNginx(array $input)
 	{
 		$this->info('Updating global NGINX config...');
@@ -282,73 +204,11 @@ class DockerGenerateCommand extends DockerCommand
 		}
 	}
 
-	protected function createDatabase(array $input)
-	{
-		$this->info('Creating database...');
-
-		switch ($input['DB'])
-		{
-			case self::MYSQL:
-				$this->warn('Creating database for MySQL is not set up yet');
-				$this->warn("Please create the database {$input['DB_DATABASE']}");
-				return;
-				break;
-			case self::POSTGRESQL:
-				$command = "docker exec -it pgsql bash -c \"echo \\\"SELECT 'CREATE DATABASE {$input['DB_DATABASE']}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{$input['DB_DATABASE']}')\gexec\\\" | psql -U pgsql && echo \\\"SELECT 'CREATE DATABASE {$input['DB_DATABASE']}_test' WHERE NOT EXISTS(SELECT FROM pg_database WHERE datname = '{$input['DB_DATABASE']}_test')\gexec\\\" | psql -U pgsql\"";
-
-				exec($command, $output, $return);
-				break;
-			default:
-				$this->error('Invalid database system');
-				$this->warn("Please create the database {$input['DB_DATABASE']}");
-		}
-
-		if ($return != 0)
-		{
-			$this->error('Failed to create database');
-			$this->warn("Please create the database {$input['DB_DATABASE']}");
-
-			exit($return);
-		}
-
-		$this->info('Successfully created database');
-	}
-
-	public function createDatabaseCredentials(array $input)
-	{
-		$this->info('Creating database credentials...');
-
-		switch ($input['DB'])
-		{
-			case self::MYSQL:
-				$this->warn('Creating database credentials for MySQL is not set up yet');
-				$this->warn("Please create the database user {$input['DB_USER']}");
-				return;
-				break;
-			case self::POSTGRESQL:
-				$command = "docker exec -it pgsql bash -c \"echo \\\"REASSIGN OWNED BY {$input['DB_USER']} TO pgsql; DROP OWNED BY {$input['DB_USER']}; DROP ROLE IF EXISTS {$input['DB_USER']}; CREATE ROLE {$input['DB_USER']} LOGIN PASSWORD '{$input['DB_PASSWORD']}'; GRANT ALL PRIVILEGES ON DATABASE {$input['DB_DATABASE']} TO {$input['DB_USER']}; GRANT ALL PRIVILEGES ON DATABASE {$input['DB_DATABASE']}_test TO {$input['DB_USER']};\\\" | psql -U pgsql\"";
-
-				exec($command, $output, $return);
-				break;
-			default:
-				$this->error('Invalid database system');
-				$this->warn("Please create the database user {$input['DB_USER']}");
-		}
-
-		if ($return != 0)
-		{
-			$this->error('Failed to create database credentials');
-			$this->warn("Please create the database user {$input['DB_USER']}");
-
-			exit($return);
-		}
-
-		$this->info('Successfully created database credentials');
-	}
-
 	public function handle()
 	{
 		$input = $this->getInput();
+
+		$this->saveConfig($input);
 
 		$this->info('Generating Docker container...');
 
