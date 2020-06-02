@@ -13,7 +13,7 @@ class DockerUpdateCommand extends DockerCommand
 	public function handle()
 	{
 		$this->stopGlobalContainers();
-		$this->pullGlobalContainers();
+		$this->installGlobalContainers();
 		$this->startupGlobalContainers();
 	}
 }
