@@ -77,7 +77,7 @@ class DockerCommand extends Command
 
 			$this->info('Cloning helium/docker-dev-base...');
 
-			shell_exec('cd ~/.docker && git clone git@bitbucket.org:teamhelium/com.helium.docker.dev-base.git 2> /dev/null');
+			shell_exec('cd ~/.docker && git clone https://bitbucket.org/teamhelium/com.helium.docker.dev-base.git 2> /dev/null');
 
 			$this->info('Successfully cloned helium/docker-dev-base');
 		}
