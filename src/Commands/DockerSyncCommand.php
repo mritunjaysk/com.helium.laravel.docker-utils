@@ -32,6 +32,9 @@ class DockerSyncCommand extends DockerCommand
 		$this->stopGlobalContainers();
 		$this->installGlobalContainers();
 		$this->startupGlobalContainers();
+		$this->stopProjectContainers();
+		$this->buildProjectContainers();
+		$this->startupProjectContainers();
 		$this->createDatabase($input);
 		$this->createDatabaseCredentials($input);
 	}
