@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class DockerGenerateCommand extends DockerCommand
 {
 	protected const MYSQL = 'mysql';
-	protected const POSTGRESQL = 'postgres';
+	protected const POSTGRESQL = 'pgsql';
 
 	protected const DB_CHOICES = [
 		self::MYSQL,
@@ -282,6 +282,70 @@ class DockerGenerateCommand extends DockerCommand
 		}
 	}
 
+	protected function createDatabase(array $input)
+	{
+		$this->info('Creating database...');
+
+		switch ($input['DB'])
+		{
+			case self::MYSQL:
+				$this->warn('Creating database for MySQL is not set up yet');
+				$this->warn("Please create the database {$input['DB_DATABASE']}");
+				return;
+				break;
+			case self::POSTGRESQL:
+				$command = "docker exec -it pgsql bash -c \"echo \\\"SELECT 'CREATE DATABASE {$input['DB_DATABASE']}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{$input['DB_DATABASE']}')\gexec\\\" | psql -U pgsql\"";
+
+				exec($command, $output, $return);
+				break;
+			default:
+				$this->error('Invalid database system');
+				$this->warn("Please create the database {$input['DB_DATABASE']}");
+		}
+
+		if ($return != 0)
+		{
+			$this->error('Failed to create database');
+			$this->warn("Please create the database {$input['DB_DATABASE']}");
+
+			exit($return);
+		}
+
+		$this->info('Successfully created database');
+	}
+
+	public function createDatabaseCredentials(array $input)
+	{
+		$this->info('Creating database credentials...');
+
+		switch ($input['DB'])
+		{
+			case self::MYSQL:
+				$this->warn('Creating database credentials for MySQL is not set up yet');
+				$this->warn("Please create the database user {$input['DB_USER']}");
+				return;
+				break;
+			case self::POSTGRESQL:
+				$command = "docker exec -it pgsql bash -c \"echo \\\"REASSIGN OWNED BY {$input['DB_USER']} TO pgsql; DROP OWNED BY {$input['DB_USER']}; DROP ROLE IF EXISTS {$input['DB_USER']}; CREATE ROLE {$input['DB_USER']} LOGIN PASSWORD '{$input['DB_PASSWORD']}'; GRANT ALL PRIVILEGES ON DATABASE {$input['DB_DATABASE']} TO {$input['DB_USER']};\\\" | psql -U pgsql\"";
+
+				exec($command, $output, $return);
+				break;
+			default:
+				$this->error('Invalid database system');
+				$this->warn("Please create the database user {$input['DB_USER']}");
+		}
+
+		if ($return != 0)
+		{
+			$this->error('Failed to create database credentials');
+			$this->warn("Please create the database user {$input['DB_USER']}");
+
+			exit($return);
+		}
+
+		$this->info('Successfully created database credentials');
+	}
+
 	public function handle()
 	{
 		$input = $this->getInput();
@@ -304,6 +368,8 @@ class DockerGenerateCommand extends DockerCommand
 		$this->startupGlobalContainers();
 
 		$this->updateNginx($input);
+		$this->createDatabase($input);
+		$this->createDatabaseCredentials($input);
 
 		$this->buildProjectContainers();
 		$this->startupProjectContainers();
