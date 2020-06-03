@@ -8,7 +8,7 @@ class DockerSyncCommand extends DockerCommand
 {
 	protected $signature = 'docker:sync';
 
-	protected $description = 'Updates global docker containers';
+	protected $description = 'For new installs of existing projects, sync your environment with the shared configuration.';
 
 	protected function getInput(): array
 	{
