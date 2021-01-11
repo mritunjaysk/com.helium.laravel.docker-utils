@@ -14,6 +14,6 @@ class DockerShellCommand extends DockerCommand
 	{
 		$containerName = $this->getPhpContainerName();
 
-		passthru("docker exec -it $containerName bash");
+		passthru("docker exec -it $containerName bash -l");
 	}
 }
