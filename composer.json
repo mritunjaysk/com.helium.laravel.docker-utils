@@ -10,8 +10,8 @@
         }
     ],
     "require": {
-        "illuminate/console": "^8.0",
-        "orchestra/testbench": "^6.4"
+        "illuminate/console": "^8.0|^9.0|^10.0|^11.0",
+        "orchestra/testbench": "^6.4|^7.0"
     },
 	"autoload": {
 		"psr-4": {
